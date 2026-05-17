@@ -50,8 +50,8 @@ El fork solo aplica cuando alguien externo quiere contribuir. Como parte del equ
 ### 1. Clona el repositorio
 
 ```bash
-git clone https://github.com/IniciativaSPARK/Proyecto-Escape-Room-Emocional.git
-cd Proyecto-Escape-Room-Emocional
+git clone https://github.com/IniciativaSPARK/Proyecto-Armario-Digital
+cd Proyecto-Armario-Digital
 ```
 
 ### 2. Crea tu propia rama
