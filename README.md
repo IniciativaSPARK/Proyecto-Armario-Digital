@@ -25,10 +25,12 @@ Una aplicación web que permita a un usuario subir imágenes de ropa y añadirle
 
 ## 🛠 Stack
 
-Capa             Tecnología 
-Frontend         -
-Backend          -
-Base de datos    -
+| Capa    | Tecnología |
+| -------- | ------- |
+| Frontend  | Next.js |
+| Backend | Node.js y Strapi |
+| Base de datos | Postgresql |
+| Almacenamiento de imágenes | Cloudinary |
 
 ---
 
