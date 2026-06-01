@@ -4,6 +4,10 @@ import { useEffect } from "react";
 import { getItems } from "@/services/itemsService";
 import { getCategories } from "@/services/categoriesService";
 import { getFabrics } from "@/services/fabricsService";
+import { redirect } from "next/navigation";
+
+export default function Page() {
+  redirect("/inicioSesion");
 
 export default function Home() {
   useEffect(() => {
