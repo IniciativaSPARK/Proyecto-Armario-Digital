@@ -1,6 +1,41 @@
+"use client";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
+import { catalogoService } from "@/services/catalogoService";
+
+import {
+  Categoria,
+  Temporada,
+} from "@/types/catalogo";
 
 export default function UploadPage() {
+
+const router = useRouter();
+  const [categorias, setCategorias] =
+    useState<Categoria[]>([]);
+
+  const [temporadas, setTemporadas] =
+    useState<Temporada[]>([]);
+
+  useEffect(() => {
+    const cargarCatalogos = async () => {
+
+      const categoriasData =
+        await catalogoService.obtenerCategorias();
+
+      const temporadasData =
+        await catalogoService.obtenerTemporadas();
+
+      setCategorias(categoriasData);
+      setTemporadas(temporadasData);
+    };
+
+    cargarCatalogos();
+  }, []);
+
+
   return (
     <main className="min-h-screen bg-white flex flex-col items-center pb-24">
 
@@ -25,7 +60,7 @@ export default function UploadPage() {
       {/* Botón galería */}
       <div className="w-full max-w-sm px-4 mb-2">
         <button className="w-full bg-[#7D2953] text-white py-3 rounded-lg shadow-md">
-           Elegir de la galería
+          Elegir de la galería
         </button>
       </div>
 
@@ -58,7 +93,20 @@ export default function UploadPage() {
         <select
           className="w-full bg-[#EEF2F5] p-4 rounded-xl mb-5 outline-none text-black"
         >
-          <option>Selecciona una categoría</option>
+          <option value="">
+            Selecciona una categoría
+          </option>
+
+          {categorias.map((categoria) => (
+            <option
+              key={categoria.id}
+              value={categoria.id}
+            >
+              {categoria.nombre}
+            </option>
+          ))}
+
+
         </select>
 
         {/* Color */}
@@ -80,7 +128,18 @@ export default function UploadPage() {
         <select
           className="w-full bg-[#EEF2F5] p-4 rounded-xl mb-5 outline-none text-black"
         >
-          <option>Selecciona una temporada</option>
+          <option value="">
+            Selecciona una temporada
+          </option>
+
+          {temporadas.map((temporada) => (
+            <option
+              key={temporada.id}
+              value={temporada.id}
+            >
+              {temporada.nombre}
+            </option>
+          ))}
         </select>
 
         {/* Marca */}
@@ -121,7 +180,7 @@ export default function UploadPage() {
 
       </div>
 
-{/* Barra de navegación inferior */}
+      {/* Barra de navegación inferior */}
 <div
   className="
     fixed
@@ -140,7 +199,10 @@ export default function UploadPage() {
 >
 
   {/* Inicio */}
-  <div className="flex flex-col items-center">
+  <button
+    onClick={() => router.push("/inicio")}
+    className="flex flex-col items-center"
+  >
     <Image
       src="/icono-inicio.png"
       alt="Inicio"
@@ -151,10 +213,13 @@ export default function UploadPage() {
     <span className="text-[11px] text-black mt-1">
       Inicio
     </span>
-  </div>
+  </button>
 
   {/* Cargar */}
-  <div className="flex flex-col items-center">
+  <button
+    onClick={() => router.push("/cargar")}
+    className="flex flex-col items-center"
+  >
     <Image
       src="/icono-cargar.png"
       alt="Cargar"
@@ -165,10 +230,13 @@ export default function UploadPage() {
     <span className="text-[11px] text-black mt-1">
       Cargar
     </span>
-  </div>
+  </button>
 
   {/* Outfits */}
-  <div className="flex flex-col items-center">
+  <button
+    onClick={() => router.push("/outfits")}
+    className="flex flex-col items-center"
+  >
     <Image
       src="/icono-outfits.png"
       alt="Outfits"
@@ -179,10 +247,13 @@ export default function UploadPage() {
     <span className="text-[11px] text-black mt-1">
       Outfits
     </span>
-  </div>
+  </button>
 
   {/* Perfil */}
-  <div className="flex flex-col items-center">
+  <button
+    onClick={() => router.push("/perfil")}
+    className="flex flex-col items-center"
+  >
     <Image
       src="/icono-perfil.png"
       alt="Perfil"
@@ -193,10 +264,9 @@ export default function UploadPage() {
     <span className="text-[11px] text-black mt-1">
       Perfil
     </span>
-  </div>
+  </button>
 
 </div>
-
     </main>
   );
 }

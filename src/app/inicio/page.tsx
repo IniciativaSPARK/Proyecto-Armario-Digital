@@ -1,18 +1,37 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { prendaService } from "@/services/prendaService";
+import { Prenda, Categoria } from "@/types/prenda";
+import { useRouter } from "next/navigation";
 
-    const prendas = Array(6).fill({
-      nombre: "Blusa rosa clásica",
-      categoria: "Blusas",
-      imagen: "/blusa-rosa.png",
-    });
 export default function HomePage() {
+  const router = useRouter();
 
   const [mostrarFiltros, setMostrarFiltros] = useState(false);
 
   const [favoritos, setFavoritos] = useState<number[]>([]);
+
+  const [prendas, setPrendas] = useState<Prenda[]>([]);
+
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
+
+  useEffect(() => {
+    const cargarDatos = async () => {
+
+      const prendasData =
+        await prendaService.obtenerPrendas();
+
+      const categoriasData =
+        await prendaService.obtenerCategorias();
+
+      setPrendas(prendasData);
+      setCategorias(categoriasData);
+    };
+
+    cargarDatos();
+  }, []);
 
   return (
     <main className="min-h-screen bg-[#F7F7F7] flex justify-center">
@@ -85,25 +104,14 @@ export default function HomePage() {
 
     <div className="bg-white rounded-xl shadow-md p-3 flex flex-wrap gap-2">
 
-<button className="bg-[#EEF2F5] text-black px-3 py-1 rounded-full text-xs">
-  Blusas
-</button>
-
-<button className="bg-[#EEF2F5] text-black px-3 py-1 rounded-full text-xs">
-  Pantalones
-</button>
-
-<button className="bg-[#EEF2F5] text-black px-3 py-1 rounded-full text-xs">
-  Casacas
-</button>
-
-<button className="bg-[#EEF2F5] text-black px-3 py-1 rounded-full text-xs">
-  Vestidos
-</button>
-
-<button className="bg-[#EEF2F5] text-black px-3 py-1 rounded-full text-xs">
-  Calzado
-</button>
+{categorias.map((categoria) => (
+  <button
+    key={categoria.id}
+    className="bg-[#EEF2F5] text-black px-3 py-1 rounded-full text-xs"
+  >
+    {categoria.nombre}
+  </button>
+))}
 
 <button className="bg-[#7D2953] text-white px-3 py-1 rounded-full text-xs">
   Favoritas
@@ -120,7 +128,7 @@ export default function HomePage() {
       <div className="w-full max-w-[370px] px-4 flex justify-between items-center mb-4">
 
         <h2 className="text-[18px] text-black font-medium">
-          Mis prendas (6)
+         Mis prendas ({prendas.length})
         </h2>
 
         <div className="flex gap-3">
@@ -146,17 +154,19 @@ export default function HomePage() {
       {/* Grid */}
       <div className="grid grid-cols-2 gap-4 px-4 max-w-[370px]">
 
-        {prendas.map((prenda, index) => (
+        {prendas.map((prenda) => (
 
-          <div
-            key={index}
-            className="
-              bg-[#F4F4F4]
-              rounded-lg
-              shadow-md
-              overflow-hidden
-            "
-          >
+  <div
+    key={prenda.id}
+    onClick={() => router.push(`/prenda/${prenda.id}`)}
+    className="
+      bg-[#F4F4F4]
+      rounded-lg
+      shadow-md
+      overflow-hidden
+      cursor-pointer
+    "
+  >
 
             {/* Imagen */}
             <div className="flex justify-center pt-3">
@@ -186,7 +196,7 @@ export default function HomePage() {
 
                <Image
                 src={
-                  favoritos.includes(index)
+                  favoritos.includes(prenda.id)
                     ? "/icono-favorito-prenda-activo.png"
                     : "/icono-favorito-prenda.png"
                 }
@@ -196,11 +206,11 @@ export default function HomePage() {
                 className="cursor-pointer"
                 onClick={() => {
 
-                  if (favoritos.includes(index)) 
+                  if (favoritos.includes(prenda.id)) 
                   {
 
                     setFavoritos(
-                      favoritos.filter((id) => id !== index)
+                      favoritos.filter((id) => id !== prenda.id)
                     );
 
                   } 
@@ -208,8 +218,8 @@ export default function HomePage() {
                     {
 
                     setFavoritos([
-                      ...favoritos,
-                      index,
+                      ...favoritos, 
+                      prenda.id,
                     ]);
 
                   }
@@ -242,62 +252,78 @@ export default function HomePage() {
       </div>
 
       {/* Navbar */}
-      <div
-        className="
-          fixed
-          bottom-0
-          left-1/2
-          -translate-x-1/2
-          w-full
-          max-w-[390px]
-          bg-[#EEF2F5]
-          border-t
-          border-gray-300
-          flex
-          justify-around
-          py-3
-        "
-      >
+<div
+  className="
+    fixed
+    bottom-0
+    left-1/2
+    -translate-x-1/2
+    w-full
+    max-w-[390px]
+    bg-[#EEF2F5]
+    border-t
+    border-gray-300
+    flex
+    justify-around
+    py-3
+    z-50
+  "
+>
 
-        <div className="flex flex-col items-center text-black text-[11px]">
-          <span className="text-xl"><Image
-            src="/icono-inicio.png"
-            alt="Inicio"
-            width={24}
-            height={24}
-          /></span>
-          Inicio
-        </div>
+<button
+  onClick={() => {
+    alert("inicio");
+    router.push("/cargar");
+  }}
+  className="flex flex-col items-center text-black text-[11px]"
+>
+  <Image
+    src="/icono-inicio.png"
+    alt="Inicio"
+    width={24}
+    height={24}
+  />
+  <span>Inicio</span>
+</button>
 
-        <div className="flex flex-col items-center text-black text-[11px]">
-          <span className="text-xl"><Image
-            src="/icono-cargar.png"
-            alt="Cargar"
-            width={24}
-            height={24}
-          /></span>
-                    Cargar
-        </div>
+<button
+  onClick={() => router.push("/cargar")}
+  className="flex flex-col items-center text-black text-[11px]"
+>
+  <Image
+    src="/icono-cargar.png"
+    alt="Cargar"
+    width={24}
+    height={24}
+  />
+  <span>Cargar</span>
+</button>
 
-        <div className="flex flex-col items-center text-black text-[11px]">
-          <span className="text-xl"><Image
-            src="/icono-outfits.png"
-            alt="Outfits"
-            width={24}
-            height={24}
-          /></span>
-          Outfits
-        </div>
+<button
+  onClick={() => router.push("/outfits")}
+  className="flex flex-col items-center text-black text-[11px]"
+>
+  <Image
+    src="/icono-outfits.png"
+    alt="Outfits"
+    width={24}
+    height={24}
+  />
+  <span>Outfits</span>
+</button>
 
-        <div className="flex flex-col items-center text-black text-[11px]">
-          <span className="text-xl"><Image
-              src="/icono-perfil.png"
-              alt="Perfil"
-              width={24}
-              height={24}
-            /></span>
-          Perfil
-        </div>
+<button
+  onClick={() => router.push("/perfil")}
+  className="flex flex-col items-center text-black text-[11px]"
+>
+  <Image
+    src="/icono-perfil.png"
+    alt="Perfil"
+    width={24}
+    height={24}
+  />
+  <span>Perfil</span>
+</button>
 
       </div>
  </div>
