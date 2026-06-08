@@ -1,8 +1,41 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { perfilService } from "@/services/perfilService";
+
+import {
+  Usuario,
+  OpcionMenu,
+} from "@/types/perfil";
 
 export default function PerfilPage() {
+  const router = useRouter();
+  const [usuario, setUsuario] =
+    useState<Usuario | null>(null);
+
+  const [opcionesMenu, setOpcionesMenu] =
+    useState<OpcionMenu[]>([]);
+
+  useEffect(() => {
+
+    const cargarPerfil = async () => {
+
+      const usuarioData =
+        await perfilService.obtenerUsuario();
+
+      const opcionesData =
+        await perfilService.obtenerOpcionesMenu();
+
+      setUsuario(usuarioData);
+      setOpcionesMenu(opcionesData);
+    };
+
+    cargarPerfil();
+
+  }, []);
+
   return (
     <main className="min-h-screen bg-[#F7F7F7] flex justify-center">
 
@@ -23,129 +56,61 @@ export default function PerfilPage() {
         {/* Encabezado */}
         <div className="px-6 py-4">
 
-            <h1 className="text-3xl text-black">
-                Mi perfil
-            </h1>
+          <h1 className="text-3xl text-black">
+            Mi perfil
+          </h1>
 
-            </div>
+        </div>
 
         {/* Usuario */}
         <div className="flex flex-col items-center mt-8">
 
           <Image
-            src="/usuario-logo.png"
+            src={usuario?.imagen || "/usuario-logo.png"}
             alt="Usuario"
             width={120}
             height={120}
           />
 
           <h2 className="text-3xl text-black mt-3">
-            Usuario
+            {usuario?.nombre}
           </h2>
 
           <p className="text-gray-600 text-sm">
-            valerygamboa@gmail.com
+            {usuario?.correo}
           </p>
 
         </div>
 
         {/* Menú */}
         <div className="mx-6 mt-8 bg-[#F1F1F1] rounded-3xl shadow-md overflow-hidden">
+          {opcionesMenu.map((opcion) => (
 
-          {/* Editar perfil */}
-          <button className="w-full flex items-center justify-between px-5 py-4 border-b">
+            <button
+              key={opcion.id}
+              className="w-full flex items-center justify-between px-5 py-4 border-b"
+            >
 
-            <div className="flex items-center gap-4">
-              <Image
-                src="/usuario-logo.png"
-                alt="Editar perfil"
-                width={24}
-                height={24}
-              />
-              <span className="text-black text-xl">
-                Editar perfil
-              </span>
-            </div>
+              <div className="flex items-center gap-4">
 
-            <span className="text-2xl">›</span>
-
-          </button>
-
-          {/* Configuración */}
-          <button className="w-full flex items-center justify-between px-5 py-4 border-b">
-
-            <div className="flex items-center gap-4">
-              <Image
-                src="/icono-configuracion.png"
-                alt="Configuración"
-                width={24}
-                height={24}
-              />
-              <span className="text-black text-xl">
-                Configuración
-              </span>
-            </div>
-
-            <span className="text-2xl">›</span>
-
-          </button>
-
-          {/* Favoritos */}
-          <button className="w-full flex items-center justify-between px-5 py-4 border-b">
-
-            <div className="flex items-center gap-4">
-            <Image
-                src="/icono-favorito-activo-decorativo.png"
-                alt="Favoritos"
-                width={24}
-                height={24}
+                <Image
+                  src={opcion.icono}
+                  alt={opcion.titulo}
+                  width={24}
+                  height={24}
                 />
-              <span className="text-black text-xl">
-                Favoritos
-              </span>
-            </div>
 
-            <span className="text-2xl">›</span>
+                <span className="text-black text-xl">
+                  {opcion.titulo}
+                </span>
 
-          </button>
+              </div>
 
-          {/* Notificaciones */}
-          <button className="w-full flex items-center justify-between px-5 py-4 border-b">
+              <span className="text-2xl">›</span>
 
-            <div className="flex items-center gap-4">
-              <Image
-                src="/icono-notificaciones.png"
-                alt="Notificaciones"
-                width={24}
-                height={24}
-              />
-              <span className="text-black text-xl">
-                Notificaciones
-              </span>
-            </div>
+            </button>
 
-            <span className="text-2xl">›</span>
-
-          </button>
-
-          {/* Ayuda */}
-          <button className="w-full flex items-center justify-between px-5 py-4 border-b">
-
-            <div className="flex items-center gap-4">
-              <Image
-                src="/icono-ayuda.png"
-                alt="Ayuda"
-                width={24}
-                height={24}
-              />
-              <span className="text-black text-xl">
-                Ayuda y soporte
-              </span>
-            </div>
-
-            <span className="text-2xl">›</span>
-
-          </button>
+          ))}
 
           {/* Cerrar sesión */}
           <button className="w-full flex items-center justify-between px-5 py-4">
@@ -186,29 +151,68 @@ export default function PerfilPage() {
           "
         >
 
-          <div className="flex flex-col items-center">
-            <Image src="/icono-inicio.png" alt="Inicio" width={24} height={24} />
-            <span className="text-[10px] mt-1">Inicio</span>
-          </div>
+          <button
+  onClick={() => router.push("/inicio")}
+  className="flex flex-col items-center"
+>
+  <Image
+    src="/icono-inicio.png"
+    alt="Inicio"
+    width={24}
+    height={24}
+  />
+  <span className="text-[10px] mt-1">
+    Inicio
+  </span>
+</button>
 
-          <div className="flex flex-col items-center">
-            <Image src="/icono-cargar.png" alt="Cargar" width={24} height={24} />
-            <span className="text-[10px] mt-1">Cargar</span>
-          </div>
+<button
+  onClick={() => router.push("/cargar")}
+  className="flex flex-col items-center"
+>
+  <Image
+    src="/icono-cargar.png"
+    alt="Cargar"
+    width={24}
+    height={24}
+  />
+  <span className="text-[10px] mt-1">
+    Cargar
+  </span>
+</button>
 
-          <div className="flex flex-col items-center">
-            <Image src="/icono-outfits.png" alt="Outfits" width={24} height={24} />
-            <span className="text-[10px] mt-1">Outfits</span>
-          </div>
+<button
+  onClick={() => router.push("/outfits")}
+  className="flex flex-col items-center"
+>
+  <Image
+    src="/icono-outfits.png"
+    alt="Outfits"
+    width={24}
+    height={24}
+  />
+  <span className="text-[10px] mt-1">
+    Outfits
+  </span>
+</button>
 
-          <div className="flex flex-col items-center">
-            <Image src="/icono-perfil.png" alt="Perfil" width={24} height={24} />
-            <span className="text-[10px] mt-1">Perfil</span>
+<button
+  onClick={() => router.push("/perfil")}
+  className="flex flex-col items-center"
+>
+  <Image
+    src="/icono-perfil.png"
+    alt="Perfil"
+    width={24}
+    height={24}
+  />
+  <span className="text-[10px] mt-1">
+    Perfil
+  </span>
+</button>
           </div>
 
         </div>
-
-      </div>
 
     </main>
   );

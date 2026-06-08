@@ -1,12 +1,38 @@
 "use client";
 
+
+import { useEffect, useState } from "react";
+import { outfitService } from "@/services/outfitService";
+import { Outfit } from "@/types/outfit";
+
+
 import Image from "next/image";
-import { useState } from "react";
+
+import { useRouter } from "next/navigation";
+
 
 export default function OutfitsPage() {
+
+  const router = useRouter();
+
   const [favoritos, setFavoritos] = useState<number[]>([]);
   const [busqueda, setBusqueda] = useState("");
   const [mostrarFiltros, setMostrarFiltros] = useState(false);
+  const [outfits, setOutfits] = useState<Outfit[]>([]);
+
+
+  useEffect(() => {
+    const cargarOutfits = async () => {
+      try {
+        const data = await outfitService.getOutfits();
+        setOutfits(data);
+      } catch (error) {
+        console.error("Error cargando outfits", error);
+      }
+    };
+
+    cargarOutfits();
+  }, []);
 
   return (
     <main className="min-h-screen bg-[#F7F7F7] flex justify-center">
@@ -20,12 +46,15 @@ export default function OutfitsPage() {
 
         <div className="flex justify-between items-center px-4 mt-4">
           <h2 className="text-black text-lg font-medium">
-            Mis outfits (6)
+            Mis outfits ({outfits.length})
           </h2>
 
-          <button className="bg-[#7D2953] text-white px-4 py-2 rounded-lg shadow-md">
-            + Crear
-          </button>
+<button
+  onClick={() => router.push("/outfits/crear")}
+  className="bg-[#7D2953] text-white px-4 py-2 rounded-lg shadow-md"
+>
+  + Crear
+</button>
         </div>
 
         <div className="px-4 mt-4">
@@ -52,14 +81,14 @@ export default function OutfitsPage() {
 
         <div className="px-4 mt-5">
           <div className="grid grid-cols-2 gap-3">
-            {[1, 2, 3, 4, 5, 6].map((item) => (
+            {outfits.map((outfit) => (
               <div
-                key={item}
+                key={outfit.id}
                 className="bg-white rounded-xl shadow-md overflow-hidden"
               >
                 <div className="relative">
                   <Image
-                    src="/outfit-guardado-ejemplo.png"
+                    src={outfit.imagen}
                     alt="Outfit"
                     width={180}
                     height={220}
@@ -75,26 +104,30 @@ export default function OutfitsPage() {
                 <div className="p-2">
                   <div className="flex justify-between items-start">
                     <div>
-                      <p className="text-[12px] text-black">Outfit casual</p>
-                      <p className="text-[10px] text-gray-600">Generado por IA</p>
+                      <p className="text-[12px] text-black">
+                        {outfit.nombre}
+                      </p>
+                      <p className="text-[10px] text-gray-600">
+  {outfit.descripcion}
+</p>
 
                       <div className="mt-1 inline-block bg-gray-100 px-2 py-[2px] rounded-full text-[10px] text-black">
-                        Primavera
+                       {outfit.temporada}
                       </div>
                     </div>
 
                     <button
                       onClick={() =>
                         setFavoritos(
-                          favoritos.includes(item)
-                            ? favoritos.filter((id) => id !== item)
-                            : [...favoritos, item]
+                          favoritos.includes(outfit.id)
+                            ?favoritos.filter((id) => id !== outfit.id)
+                            : [...favoritos, outfit.id]
                         )
                       }
                     >
                       <Image
                         src={
-                          favoritos.includes(item)
+                          favoritos.includes(outfit.id)
                             ? "/icono-favorito-outfit-activo.png"
                             : "/icono-favorito-outfit.png"
                         }
@@ -110,31 +143,51 @@ export default function OutfitsPage() {
           </div>
         </div>
 
-        <div
-          className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[390px] bg-[#EEF2F5] border-t flex justify-around py-3 z-50"
-        >
-          <div className="flex flex-col items-center">
-            <Image src="/icono-inicio.png" alt="Inicio" width={24} height={24} />
-            <span className="text-[10px] mt-1">Inicio</span>
-          </div>
+<div
+  className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[390px] bg-[#EEF2F5] border-t flex justify-around py-3 z-50"
+>
+<button
+  onClick={() => {
+    window.location.href = "/inicio";
+  }}
+  className="flex flex-col items-center"
+>
+  <Image
+    src="/icono-inicio.png"
+    alt="Inicio"
+    width={24}
+    height={24}
+  />
+  <span className="text-[10px] mt-1">Inicio</span>
+</button>
 
-          <div className="flex flex-col items-center">
-            <Image src="/icono-cargar.png" alt="Cargar" width={24} height={24} />
-            <span className="text-[10px] mt-1">Cargar</span>
-          </div>
+  <button
+    onClick={() => router.push("/cargar")}
+    className="flex flex-col items-center"
+  >
+    <Image src="/icono-cargar.png" alt="Cargar" width={24} height={24} />
+    <span className="text-[10px] mt-1">Cargar</span>
+  </button>
 
-          <div className="flex flex-col items-center">
-            <Image src="/icono-outfits.png" alt="Outfits" width={24} height={24} />
-            <span className="text-[10px] mt-1">Outfits</span>
-          </div>
+  <button
+    onClick={() => router.push("/outfits")}
+    className="flex flex-col items-center"
+  >
+    <Image src="/icono-outfits.png" alt="Outfits" width={24} height={24} />
+    <span className="text-[10px] mt-1">Outfits</span>
+  </button>
 
-          <div className="flex flex-col items-center">
-            <Image src="/icono-perfil.png" alt="Perfil" width={24} height={24} />
-            <span className="text-[10px] mt-1">Perfil</span>
-          </div>
-        </div>
+  <button
+    onClick={() => router.push("/perfil")}
+    className="flex flex-col items-center"
+  >
+    <Image src="/icono-perfil.png" alt="Perfil" width={24} height={24} />
+    <span className="text-[10px] mt-1">Perfil</span>
+  </button>
+</div>
 
-      </div>
-    </main>
-  );
+</div>
+</main>
+);
 }
+  

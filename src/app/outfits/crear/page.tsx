@@ -1,20 +1,52 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { crearOutfitService } from "@/services/crearOutfitService";
+
+import {
+  CategoriaPrenda,
+  Prenda,
+  Temporada,
+} from "@/types/crearOutfit";
 
 export default function CrearOutfitPage() {
+
+  const router = useRouter();
+
   const [mostrarCategorias, setMostrarCategorias] = useState(false);
 
-  const imagenesPrendas = [
-    "/sombrero.png",
-    "/casaca.png",
-    "/polo.png",
-    "/short.png",
-    "/botas.png",
-  ]; 
+  const [prendas, setPrendas] =
+    useState<Prenda[]>([]);
 
-  const sombrerosDisponibles = [1, 2, 3, 4, 5];
+  const [categorias, setCategorias] =
+    useState<CategoriaPrenda[]>([]);
+
+  const [temporadas, setTemporadas] =
+    useState<Temporada[]>([]);
+
+  useEffect(() => {
+
+    const cargarDatos = async () => {
+
+      const prendasData =
+        await crearOutfitService.obtenerPrendas();
+
+      const categoriasData =
+        await crearOutfitService.obtenerCategorias();
+
+      const temporadasData =
+        await crearOutfitService.obtenerTemporadas();
+
+      setPrendas(prendasData);
+      setCategorias(categoriasData);
+      setTemporadas(temporadasData);
+    };
+
+    cargarDatos();
+
+  }, []);
 
   return (
     <main className="min-h-screen bg-[#F7F7F7] flex justify-center">
@@ -28,13 +60,18 @@ export default function CrearOutfitPage() {
 
         <div className="flex justify-between items-center px-5 py-4">
           <h1 className="text-2xl text-black">Crear outfit</h1>
-          <button className="text-3xl text-gray-500">×</button>
+         <button
+  onClick={() => router.push("/outfits")}
+  className="text-3xl text-gray-500"
+>
+  ×
+</button>
         </div>
 
         <div className="px-4">
           <div className="bg-blue-600 rounded-xl shadow-md p-4 flex justify-between items-center">
             <div className="flex items-center gap-2 text-white">
-            
+
               <span>Tu ubicación</span>
             </div>
             <span className="text-white text-4xl font-bold">22°C</span>
@@ -53,14 +90,18 @@ export default function CrearOutfitPage() {
           <div className="flex gap-2 mb-3">
             <select className="bg-[#A65E82] text-white px-3 py-2 rounded-lg shadow">
               <option>Seleccionar categoría</option>
-              <option>Verano</option>
-              <option>Otoño</option>
-              <option>Invierno</option>
-              <option>Primavera</option>
+              {temporadas.map((temporada) => (
+                <option
+                  key={temporada.id}
+                  value={temporada.id}
+                >
+                  {temporada.nombre}
+                </option>
+              ))}
             </select>
 
             <button className="bg-[#A65E82] text-white px-4 py-2 rounded-lg shadow">
-              Guardar 
+              Guardar
             </button>
           </div>
 
@@ -72,8 +113,8 @@ export default function CrearOutfitPage() {
         </div>
 
         <div className="px-4 mt-8 flex flex-col gap-4">
-          {imagenesPrendas.map((rutaImagen, indice) => (
-            <div key={indice} className="flex items-center justify-between">
+          {prendas.map((prenda) => (
+            <div key={prenda.id} className="flex items-center justify-between">
               <button className="text-2xl font-bold text-black">◀</button>
 
               <div
@@ -83,7 +124,7 @@ export default function CrearOutfitPage() {
                 `}
               >
                 <Image
-                  src={rutaImagen}
+                  src={prenda.imagen}
                   alt="Prenda"
                   width={mostrarCategorias ? 80 : 140}
                   height={mostrarCategorias ? 80 : 140}
@@ -97,7 +138,7 @@ export default function CrearOutfitPage() {
         </div>
 
         <div className="flex justify-end px-3 mt-2">
-        <button
+          <button
             onClick={() => setMostrarCategorias(!mostrarCategorias)}
             className="
             bg-white
@@ -107,14 +148,14 @@ export default function CrearOutfitPage() {
             shadow-lg
             z-40
             "
-        >
+          >
             <Image
-            src="/icono-expandir.png"
-            alt="Expandir"
-            width={24}
-            height={24}
+              src="/icono-expandir.png"
+              alt="Expandir"
+              width={24}
+              height={24}
             />
-        </button>
+          </button>
         </div>
 
 
@@ -123,17 +164,19 @@ export default function CrearOutfitPage() {
         {!mostrarCategorias && (
           <div className="mt-6 border-t border-gray-300 pt-3">
             <div className="flex overflow-x-auto gap-2 px-2">
-            <div className="min-w-[95px] h-[70px] border bg-white flex justify-center items-center text-center text-xs text-black font-medium">
-            Accesorios para la cabeza
-            </div>
+              <div className="min-w-[95px] h-[70px] border bg-white flex justify-center items-center text-center text-xs text-black font-medium">
+                Accesorios para la cabeza
+              </div>
 
-              {sombrerosDisponibles.map((item) => (
+             {prendas
+  .filter((prenda) => prenda.categoriaId === 1)
+  .map((prenda) => (
                 <div
-                  key={item}
+                  key={prenda.id}
                   className="min-w-[70px] h-[70px] border bg-white flex justify-center items-center"
                 >
                   <Image
-                    src="/sombrero.png"
+                    src={prenda.imagen}
                     alt="Sombrero"
                     width={55}
                     height={55}
@@ -146,33 +189,33 @@ export default function CrearOutfitPage() {
 
         {mostrarCategorias && (
           <div className="border-t border-gray-300 mt-4">
-            {[
-              "Accesorios para la cabeza",
-              "Ropa exterior",
-              "Prendas superiores",
-              "Prendas inferiores",
-              "Calzado",
-            ].map((categoria) => (
-              <div key={categoria} className="flex border-b bg-white">
+
+            {categorias.map((categoria) => (
+              <div key={categoria.id} className="flex border-b bg-white">
                 <div className="w-[95px] text-[11px] text-black flex items-center justify-center text-center p-2 border-r">
-                {categoria}
+                  {categoria.nombre}
                 </div>
 
                 <div className="flex-1 overflow-x-auto">
                   <div className="flex gap-1 p-1">
-                    {[1, 2, 3, 4, 5, 6].map((item) => (
-                      <div
-                        key={item}
-                        className="min-w-[60px] h-[60px] border flex justify-center items-center"
-                      >
-                        <Image
-                          src="/sombrero.png"
-                          alt="Prenda"
-                          width={45}
-                          height={45}
-                        />
-                      </div>
-                    ))}
+                    {prendas
+                      .filter(
+                        (prenda) =>
+                          prenda.categoriaId === categoria.id
+                      )
+                      .map((prenda) => (
+                        <div
+                          key={prenda.id}
+                          className="min-w-[60px] h-[60px] border flex justify-center items-center"
+                        >
+                          <Image
+                            src={prenda.imagen}
+                            alt="Prenda"
+                            width={45}
+                            height={45}
+                          />
+                        </div>
+                      ))}
                   </div>
                 </div>
               </div>
@@ -181,29 +224,42 @@ export default function CrearOutfitPage() {
         )}
 
 
+<div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[390px] z-50 bg-[#EEF2F5] border-t flex justify-around py-3">
 
-        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[390px] z-50 bg-[#EEF2F5] border-t flex justify-around py-3">
-          <div className="flex flex-col items-center">
-            <Image src="/icono-inicio.png" alt="Inicio" width={28} height={28} />
-            <span className="text-[11px] text-black mt-1">Inicio</span>
-          </div>
+  <button
+    onClick={() => router.push("/inicio")}
+    className="flex flex-col items-center"
+  >
+    <Image src="/icono-inicio.png" alt="Inicio" width={28} height={28} />
+    <span className="text-[11px] text-black mt-1">Inicio</span>
+  </button>
 
-          <div className="flex flex-col items-center">
-            <Image src="/icono-cargar.png" alt="Cargar" width={28} height={28} />
-            <span className="text-[11px] text-black mt-1">Cargar</span>
-          </div>
+  <button
+    onClick={() => router.push("/cargar")}
+    className="flex flex-col items-center"
+  >
+    <Image src="/icono-cargar.png" alt="Cargar" width={28} height={28} />
+    <span className="text-[11px] text-black mt-1">Cargar</span>
+  </button>
 
-          <div className="flex flex-col items-center">
-            <Image src="/icono-outfits.png" alt="Outfits" width={28} height={28} />
-            <span className="text-[11px] text-black mt-1">Outfits</span>
-          </div>
+  <button
+    onClick={() => router.push("/outfits")}
+    className="flex flex-col items-center"
+  >
+    <Image src="/icono-outfits.png" alt="Outfits" width={28} height={28} />
+    <span className="text-[11px] text-black mt-1">Outfits</span>
+  </button>
 
-          <div className="flex flex-col items-center">
-            <Image src="/icono-perfil.png" alt="Perfil" width={28} height={28} />
-            <span className="text-[11px] text-black mt-1">Perfil</span>
-          </div>
+  <button
+    onClick={() => router.push("/perfil")}
+    className="flex flex-col items-center"
+  >
+    <Image src="/icono-perfil.png" alt="Perfil" width={28} height={28} />
+    <span className="text-[11px] text-black mt-1">Perfil</span>
+  </button>
+
+</div>
         </div>
-      </div>
     </main>
   );
 }
